@@ -21,7 +21,9 @@ dependencies = [
     "ipywidgets (>=8.1.5,<9.0.0)",
     "redis (>=5.2.1,<6.0.0)",
     "gevent (>=24.11.1,<25.0.0)",
-    "eventlet (>=0.39.1,<0.40.0)"
+    "eventlet (>=0.39.1,<0.40.0)",
+    "anyscale (>=0.26.8,<0.27.0)",
+    "confluent-kafka (>=2.8.2,<3.0.0)"
 ]
 
 [tool.poetry]
