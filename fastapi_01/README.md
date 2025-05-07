@@ -6,7 +6,7 @@ This repository contains a demo FastAPI application that provides NLP (Natural L
 
 The API provides the following NLP capabilities:
 - Sentiment Analysis
-- Named Entity Recognition 
+- Named Entity Recognition
 - Text Classification
 - WebSocket real-time processing
 
@@ -89,4 +89,3 @@ curl -X POST "http://localhost:8000/api/v1/sentiment" \
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-

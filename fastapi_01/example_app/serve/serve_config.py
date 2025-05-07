@@ -13,14 +13,22 @@ from example_app.serve.ingress_deployment import IngressDeployment
 
 INGRESS_APP_NAME = "ingress-app"
 
+
 def start_serve(fastapi_app: FastAPI) -> DeploymentHandle:
     # Deploy the ingress deployment
-    serve_ingress_app = serve.deployment(serve.ingress(fastapi_app)(IngressDeployment)).options(
-        name="ingress-deployment",
-        num_replicas=1,
-    ).bind(SentimentAnalyzer.bind(), TextClassifier.bind(), EntityRecognizer.bind())
+    serve_ingress_app = (
+        serve.deployment(serve.ingress(fastapi_app)(IngressDeployment))
+        .options(
+            name="ingress-deployment",
+            num_replicas=1,
+        )
+        .bind(SentimentAnalyzer.bind(), TextClassifier.bind(), EntityRecognizer.bind())
+    )
 
-    return serve.run(serve_ingress_app, name=INGRESS_APP_NAME, route_prefix="/", blocking=True)
+    return serve.run(
+        serve_ingress_app, name=INGRESS_APP_NAME, route_prefix="/", blocking=True
+    )
+
 
 def get_deployment(name: str) -> DeploymentHandle:
     """Get deployment handle by name."""

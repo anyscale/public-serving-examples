@@ -10,6 +10,7 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 from opentelemetry.sdk.trace.sampling import TraceIdRatioBased
 
+
 def setup_opentelemetry(
     app: FastAPI,
     service_name: str,
@@ -21,7 +22,7 @@ def setup_opentelemetry(
 ):
     """
     Set up OpenTelemetry instrumentation for FastAPI.
-    
+
     Args:
         app: FastAPI application to instrument
         service_name: Name of the service
@@ -33,34 +34,35 @@ def setup_opentelemetry(
     """
     # Set up resource
     resource = Resource.create({SERVICE_NAME: service_name})
-    
+
     # Set up tracer provider with sampling
     sampler = TraceIdRatioBased(sampling_ratio)
     tracer_provider = TracerProvider(resource=resource, sampler=sampler)
-    
+
     # Set up Jaeger exporter
     jaeger_exporter = JaegerExporter(
         agent_host_name=jaeger_host,
         agent_port=jaeger_port,
     )
     tracer_provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
-    
+
     # Set up OTLP exporter if endpoint provided
     if otlp_endpoint:
         otlp_exporter = OTLPSpanExporter(endpoint=otlp_endpoint)
         tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
-    
+
     # Set up console exporter for debugging if requested
     if console_export:
         console_exporter = ConsoleSpanExporter()
         tracer_provider.add_span_processor(BatchSpanProcessor(console_exporter))
-    
+
     # Set global tracer provider
     trace.set_tracer_provider(tracer_provider)
-    
+
     # Instrument FastAPI application
     FastAPIInstrumentor.instrument_app(app, tracer_provider=tracer_provider)
 
+
 def get_tracer(name: str):
     """Get a tracer for a specific component."""
-    return trace.get_tracer(name) 
+    return trace.get_tracer(name)

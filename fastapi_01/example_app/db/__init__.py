@@ -8,7 +8,7 @@ from example_app.db.database import (
     get_rate_limit,
     store_request_history,
     get_request_history,
-    delete_request_history
+    delete_request_history,
 )
 
 __all__ = [
@@ -21,5 +21,5 @@ __all__ = [
     "get_rate_limit",
     "store_request_history",
     "get_request_history",
-    "delete_request_history"
-] 
+    "delete_request_history",
+]

@@ -29,6 +29,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("main")
 
+
 # Custom NumPy JSON encoder
 class NumpyJSONEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -40,6 +41,7 @@ class NumpyJSONEncoder(json.JSONEncoder):
             return obj.tolist()
         return super().default(obj)
 
+
 # Create FastAPI app
 fastapi_app = FastAPI(
     title=PROJECT_NAME,
@@ -47,7 +49,7 @@ fastapi_app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
-    default_response_class=JSONResponse
+    default_response_class=JSONResponse,
 )
 
 # Add routers
@@ -56,18 +58,16 @@ fastapi_app.include_router(v1_router)
 # Add middleware
 add_middleware(fastapi_app)
 
+
 # Add exception handlers
 @fastapi_app.exception_handler(ClassificationError)
 async def classification_error_handler(request, exc):
     """Custom exception handler for classification errors."""
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
-        content={
-            "error_type": exc.name,
-            "detail": exc.message,
-            "error_code": 1001
-        }
+        content={"error_type": exc.name, "detail": exc.message, "error_code": 1001},
     )
+
 
 # # Set up OpenTelemetry instrumentation
 # setup_opentelemetry(
