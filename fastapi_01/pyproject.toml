@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "nlp-pipeline"
+version = "1.0.0"
+description = "A real-time NLP processing pipeline with FastAPI and Ray Serve"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.115.12"
+uvicorn = "^0.34.2"
+ray = {extras = ["serve"], version = "^2.45.0"}
+transformers = "^4.51.3"
+redis = "^6.0.0"
+python-jose = "^3.4.0"
+passlib = "^1.7.4"
+python-multipart = "^0.0.20"
+pydantic = "^2.11.4"
+httpx = "^0.28.1"
+python-dotenv = "^1.1.0"
+opentelemetry-api = "^1.32.1"
+opentelemetry-sdk = "^1.32.1"
+opentelemetry-instrumentation-fastapi = "^0.53b1"
+opentelemetry-exporter-otlp = "^1.32.1"
+opentelemetry-exporter-jaeger = "^1.21.0"
+numpy = "^1.26"
+torch = "^2.7.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+black = "^25.1.0"
+isort = "^6.0.1"
+flake8 = "^7.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ["py39"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
