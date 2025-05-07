@@ -9,8 +9,6 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from ray import serve
 
-from example_app.api.middleware import add_middleware
-from example_app.api.v1.router import router as v1_router
 from example_app.db.database import close_redis
 from example_app.serve import get_serve_app
 from example_app.config import PROJECT_NAME
@@ -31,18 +29,6 @@ logging.basicConfig(
 logger = logging.getLogger("main")
 
 
-# Custom NumPy JSON encoder
-class NumpyJSONEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.integer):
-            return int(obj)
-        if isinstance(obj, np.floating):
-            return float(obj)
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return super().default(obj)
-
-
 # Create FastAPI app
 fastapi_app = FastAPI(
     title=PROJECT_NAME,
@@ -53,40 +39,41 @@ fastapi_app = FastAPI(
     default_response_class=JSONResponse,
 )
 
-# Add routers
-fastapi_app.include_router(v1_router)
 
-# Add middleware
-add_middleware(fastapi_app)
+def app_init_func(app: FastAPI):
+    from example_app.api.middleware import add_middleware
+    from example_app.api.v1.router import router as v1_router
 
+    # Define exception handler
+    async def classification_error_handler(request, exc):
+        """Custom exception handler for classification errors."""
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"error_type": exc.name, "detail": exc.message, "error_code": 1001},
+        )
 
-# Add exception handlers
-@fastapi_app.exception_handler(ClassificationError)
-async def classification_error_handler(request, exc):
-    """Custom exception handler for classification errors."""
-    return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        content={"error_type": exc.name, "detail": exc.message, "error_code": 1001},
+    # Register exception handler
+    app.add_exception_handler(ClassificationError, classification_error_handler)
+
+    # add routers
+    app.include_router(v1_router)
+
+    # add middleware
+    add_middleware(app)
+
+    # Set up OpenTelemetry instrumentation
+    setup_opentelemetry(
+        app=app,
+        service_name="nlp-pipeline",
+        jaeger_host="localhost",
+        jaeger_port=6831,
+        otlp_endpoint="localhost:4317",
+        sampling_ratio=1.0,  # Sample all requests in development
+        console_export=True,  # For debugging
     )
 
 
-# # Set up OpenTelemetry instrumentation
-# setup_opentelemetry(
-#     app=fastapi_app,
-#     service_name="nlp-pipeline",
-#     jaeger_host="jaeger",
-#     jaeger_port=14268,
-#     sampling_ratio=1.0,  # Sample all requests in development
-#     console_export=True,  # For debugging
-# )
-
-# # Get a tracer for this service
-# tracer = get_tracer("nlp-pipeline")
-
-# Start time for uptime calculation
-start_time = time.time()
-
-serve_ingress_app = get_serve_app(fastapi_app)
+serve_ingress_app = get_serve_app(fastapi_app, app_init_func)
 
 if __name__ == "__main__":
     serve.run(serve_ingress_app, name=INGRESS_APP_NAME, route_prefix="/", blocking=True)

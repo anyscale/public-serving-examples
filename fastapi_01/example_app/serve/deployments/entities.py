@@ -3,18 +3,16 @@ from typing import Dict, Any, List
 import torch
 from ray import serve
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
+from example_app.config import MODEL_CONFIGS
 
 
 @serve.deployment(
     name="entity_recognizer",
-    num_replicas=1,
-    ray_actor_options={"num_cpus": 0.5, "num_gpus": 0},
-    max_ongoing_requests=10,
 )
 class EntityRecognizer:
     def __init__(self):
         # Load model and tokenizer
-        self.model_name = "dslim/bert-base-NER"
+        self.model_name = MODEL_CONFIGS["ner"]["model_name"]
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.model = AutoModelForTokenClassification.from_pretrained(self.model_name)
 

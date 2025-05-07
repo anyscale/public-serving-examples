@@ -27,27 +27,17 @@ RAY_ADDRESS = os.getenv("RAY_ADDRESS", "local")
 MODEL_CONFIGS = {
     "sentiment": {
         "model_name": "distilbert-base-uncased-finetuned-sst-2-english",
-        "task": "sentiment-analysis",
-        "num_replicas": 1,
     },
     "classification": {
         "model_name": "facebook/bart-large-mnli",
-        "task": "zero-shot-classification",
-        "num_replicas": 1,
     },
     "summarization": {
         "model_name": "sshleifer/distilbart-cnn-12-6",
-        "task": "summarization",
-        "num_replicas": 1,
     },
     "translation": {
         "model_name": "Helsinki-NLP/opus-mt-en-fr",
-        "task": "translation",
-        "num_replicas": 1,
     },
     "ner": {
         "model_name": "dslim/bert-base-NER",
-        "task": "token-classification",
-        "num_replicas": 1,
     },
 }

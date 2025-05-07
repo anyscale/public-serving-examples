@@ -53,4 +53,5 @@ echo "Once started, you can access:"
 echo "- API Documentation: http://localhost:8000/docs"
 echo "- ReDoc Documentation: http://localhost:8000/redoc"
 echo "- Jaeger UI (for tracing): http://localhost:16686"
-poetry run python main.py
+echo "- Ray Dashboard: http://127.0.0.1:8265/#/overview"
+poetry run serve run serve_config.yaml

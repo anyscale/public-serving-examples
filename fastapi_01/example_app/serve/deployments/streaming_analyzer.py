@@ -6,7 +6,7 @@ from ray import serve
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 from nltk.tokenize import sent_tokenize
 import nltk
-
+from example_app.config import MODEL_CONFIGS
 import logging
 
 logger = logging.getLogger(__name__)
@@ -25,14 +25,14 @@ class StreamingAnalyzer:
         nltk.download("punkt_tab")
         print("NLTK data downloaded")
         # Load models
-        self.sentiment_model_name = "distilbert-base-uncased-finetuned-sst-2-english"
+        self.sentiment_model_name = MODEL_CONFIGS["sentiment"]["model_name"]
         self.tokenizer = AutoTokenizer.from_pretrained(self.sentiment_model_name)
         self.sentiment_model = AutoModelForSequenceClassification.from_pretrained(
             self.sentiment_model_name
         )
 
         # Set up NER pipeline
-        self.ner_pipeline = pipeline("ner", model="dslim/bert-base-NER")
+        self.ner_pipeline = pipeline("ner", model=MODEL_CONFIGS["ner"]["model_name"])
 
         # Set device
         self.device = "cuda" if torch.cuda.is_available() else "cpu"

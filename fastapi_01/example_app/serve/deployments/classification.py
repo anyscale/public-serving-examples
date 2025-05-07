@@ -3,18 +3,16 @@ from typing import Dict, Any, List
 import torch
 from ray import serve
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+from example_app.config import MODEL_CONFIGS
 
 
 @serve.deployment(
     name="text_classifier",
-    num_replicas=1,
-    ray_actor_options={"num_cpus": 0.5, "num_gpus": 0},
-    max_ongoing_requests=10,
 )
 class TextClassifier:
     def __init__(self):
         # Load model and tokenizer
-        self.model_name = "facebook/bart-large-mnli"
+        self.model_name = MODEL_CONFIGS["classification"]["model_name"]
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.model = AutoModelForSequenceClassification.from_pretrained(self.model_name)
 
