@@ -14,14 +14,16 @@ router = APIRouter(prefix="/streaming", tags=["streaming"])
 
 class StreamingTextRequest(BaseModel):
     """Request model for streaming text analysis."""
-    text: str = Field(..., min_length=1, max_length=100000, description="Text to analyze")
+
+    text: str = Field(
+        ..., min_length=1, max_length=100000, description="Text to analyze"
+    )
     analysis_types: List[str] = Field(
-        default=["sentiment", "entities"],
-        description="Types of analysis to perform"
+        default=["sentiment", "entities"], description="Types of analysis to perform"
     )
     chunk_delay: Optional[float] = Field(
-        default=None, 
-        description="Optional delay between chunks in seconds to simulate slower processing"
+        default=None,
+        description="Optional delay between chunks in seconds to simulate slower processing",
     )
 
 
@@ -29,50 +31,49 @@ class StreamingTextRequest(BaseModel):
 async def stream_analyze_text(
     request: StreamingTextRequest,
     current_user: User = Depends(get_current_active_user),
-    streaming_analyzer = Depends(get_streaming_analyzer)
+    streaming_analyzer=Depends(get_streaming_analyzer),
 ):
     """
     Stream analysis of text in real-time.
-    
+
     This endpoint processes text in chunks and returns results as they become available.
     It showcases the streaming capabilities of FastAPI and Ray Serve.
-    
+
     Results are streamed as Server-Sent Events (SSE).
     """
-    
+
     async def generate():
         # Send initial processing message
         yield f"data: {json.dumps({'status': 'processing', 'message': 'Starting analysis'})}\n\n"
-        
+
         try:
             # Start the streaming analysis
-            async for chunk_result in streaming_analyzer.options(stream=True).stream_analysis.remote(
-                request.text, 
-                request.analysis_types
-            ):
+            async for chunk_result in streaming_analyzer.options(
+                stream=True
+            ).stream_analysis.remote(request.text, request.analysis_types):
                 # Convert result to JSON and yield as SSE
                 yield f"data: {json.dumps(chunk_result)}\n\n"
-                
+
                 # Add optional delay if specified
                 if request.chunk_delay:
                     await asyncio.sleep(request.chunk_delay)
-                    
-            # Send completion message    
+
+            # Send completion message
             yield f"data: {json.dumps({'status': 'completed', 'message': 'Analysis complete'})}\n\n"
-            
+
         except Exception as e:
             # Send error message
             error_msg = f"Error during analysis: {str(e)}"
             yield f"data: {json.dumps({'status': 'error', 'message': error_msg})}\n\n"
-    
+
     return StreamingResponse(
-        generate(), 
+        generate(),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
-            "X-Accel-Buffering": "no"  # Disable buffering in Nginx
-        }
+            "X-Accel-Buffering": "no",  # Disable buffering in Nginx
+        },
     )
 
 
@@ -80,22 +81,21 @@ async def stream_analyze_text(
 async def analyze_document(
     request: StreamingTextRequest,
     current_user: User = Depends(get_current_active_user),
-    streaming_analyzer = Depends(get_streaming_analyzer)
+    streaming_analyzer=Depends(get_streaming_analyzer),
 ):
     """
     Analyze an entire document with the same streaming backend.
-    
+
     This endpoint processes the document in chunks using the streaming backend
     but returns a single comprehensive result. It's useful for comparing
     streaming vs. non-streaming approaches.
     """
-    
+
     # Process the document
     result = await streaming_analyzer.options(stream=False).analyze_document.remote(
-        request.text,
-        request.analysis_types
+        request.text, request.analysis_types
     )
-    
+
     return result
 
 
@@ -103,7 +103,7 @@ async def analyze_document(
 async def get_demo_page():
     """
     Return a simple HTML page that demonstrates the streaming API.
-    
+
     This page includes a text input field and displays streaming results
     in real-time.
     """
@@ -191,11 +191,11 @@ async def get_demo_page():
     <body>
         <h1>Streaming NLP Analysis Demo</h1>
         <p>This demo showcases real-time text analysis using FastAPI streaming responses and Ray Serve.</p>
-        
+
         <div class="progress-bar">
             <div id="progress" class="progress-bar-fill"></div>
         </div>
-        
+
         <div class="container">
             <div class="input-section">
                 <h2>Input</h2>
@@ -209,13 +209,13 @@ async def get_demo_page():
                 </div>
                 <button id="analyze-btn">Analyze Text</button>
             </div>
-            
+
             <div class="results-section">
                 <h2>Results <small>(streaming)</small></h2>
                 <div id="results"></div>
             </div>
         </div>
-        
+
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const analyzeBtn = document.getElementById('analyze-btn');
@@ -225,32 +225,32 @@ async def get_demo_page():
                 const sentimentCheck = document.getElementById('sentiment-check');
                 const entitiesCheck = document.getElementById('entities-check');
                 const delayInput = document.getElementById('delay-input');
-                
+
                 analyzeBtn.addEventListener('click', function() {
                     startAnalysis();
                 });
-                
+
                 function startAnalysis() {
                     // Clear previous results
                     resultsDiv.innerHTML = '';
                     progressBar.style.width = '0%';
                     analyzeBtn.disabled = true;
-                    
+
                     // Get analysis types
                     const analysisTypes = [];
                     if (sentimentCheck.checked) analysisTypes.push('sentiment');
                     if (entitiesCheck.checked) analysisTypes.push('entities');
-                    
+
                     // Calculate delay in seconds
                     const delayInSeconds = parseInt(delayInput.value) / 1000;
-                    
+
                     // Prepare request
                     const request = {
                         text: textInput.value,
                         analysis_types: analysisTypes,
                         chunk_delay: delayInSeconds
                     };
-                    
+
                     // Make the streaming request
                     fetch('/api/v1/streaming/analyze', {
                         method: 'POST',
@@ -261,7 +261,7 @@ async def get_demo_page():
                     }).then(response => {
                         const reader = response.body.getReader();
                         const decoder = new TextDecoder();
-                        
+
                         return new ReadableStream({
                             start(controller) {
                                 function push() {
@@ -271,24 +271,24 @@ async def get_demo_page():
                                             analyzeBtn.disabled = false;
                                             return;
                                         }
-                                        
+
                                         const chunk = decoder.decode(value, { stream: true });
                                         processChunk(chunk);
                                         controller.enqueue(value);
                                         push();
                                     });
                                 }
-                                
+
                                 push();
                             }
                         });
                     });
                 }
-                
+
                 function processChunk(textChunk) {
                     // Split the chunk by double newlines (SSE format)
                     const lines = textChunk.split('\\n\\n');
-                    
+
                     lines.forEach(line => {
                         if (line.startsWith('data:')) {
                             // Extract the JSON data
@@ -302,7 +302,7 @@ async def get_demo_page():
                         }
                     });
                 }
-                
+
                 function displayResult(data) {
                     // Handle status messages
                     if (data.status === 'processing' || data.status === 'completed' || data.status === 'error') {
@@ -313,31 +313,31 @@ async def get_demo_page():
                         resultsDiv.scrollTop = resultsDiv.scrollHeight;
                         return;
                     }
-                    
+
                     // Handle chunk results
                     if (data.chunk_id !== undefined) {
                         // Update progress bar
                         progressBar.style.width = `${data.progress * 100}%`;
-                        
+
                         // Create chunk div
                         const chunkDiv = document.createElement('div');
                         chunkDiv.className = 'chunk';
-                        
+
                         // Add chunk header
                         chunkDiv.innerHTML = `<h3>Chunk ${data.chunk_id + 1}/${data.total_chunks}</h3>`;
                         chunkDiv.innerHTML += `<p>${data.chunk_text}</p>`;
-                        
+
                         // Add sentiment if available
                         if (data.sentiment) {
                             const sentimentClass = `sentiment-${data.sentiment}`;
                             chunkDiv.innerHTML += `<p>Sentiment: <span class="${sentimentClass}">${data.sentiment}</span> (${(data.sentiment_score * 100).toFixed(1)}%)</p>`;
                         }
-                        
+
                         // Add entities if available
                         if (data.entities && data.entities.length > 0) {
                             const entitiesDiv = document.createElement('div');
                             entitiesDiv.innerHTML = '<p>Entities:</p>';
-                            
+
                             const entitiesList = document.createElement('div');
                             data.entities.forEach(entity => {
                                 const entitySpan = document.createElement('span');
@@ -345,14 +345,14 @@ async def get_demo_page():
                                 entitySpan.textContent = `${entity.word} (${entity.entity})`;
                                 entitiesList.appendChild(entitySpan);
                             });
-                            
+
                             entitiesDiv.appendChild(entitiesList);
                             chunkDiv.appendChild(entitiesDiv);
                         }
-                        
+
                         // Add processing time
                         chunkDiv.innerHTML += `<p><small>Processed in ${(data.processing_time * 1000).toFixed(0)}ms</small></p>`;
-                        
+
                         resultsDiv.appendChild(chunkDiv);
                         resultsDiv.scrollTop = resultsDiv.scrollHeight;
                     }
@@ -362,8 +362,5 @@ async def get_demo_page():
     </body>
     </html>
     """
-    
-    return StreamingResponse(
-        content=iter([html_content]), 
-        media_type="text/html"
-    ) 
+
+    return StreamingResponse(content=iter([html_content]), media_type="text/html")

@@ -24,10 +24,10 @@ def get_serve_app(fastapi_app: FastAPI) -> DeploymentHandle:
             num_replicas=1,
         )
         .bind(
-            SentimentAnalyzer.bind(), 
-            TextClassifier.bind(), 
+            SentimentAnalyzer.bind(),
+            TextClassifier.bind(),
             EntityRecognizer.bind(),
-            StreamingAnalyzer.bind()
+            StreamingAnalyzer.bind(),
         )
     )
 

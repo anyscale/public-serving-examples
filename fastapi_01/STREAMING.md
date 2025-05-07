@@ -63,4 +63,4 @@ The demo page uses JavaScript to:
 - **Improved User Experience**: Users see partial results immediately instead of waiting for complete processing
 - **Reduced Perceived Latency**: The application feels more responsive
 - **Better Resource Utilization**: Processing happens in parallel with transmission
-- **Scalability**: The system can handle large documents by processing and returning them incrementally 
+- **Scalability**: The system can handle large documents by processing and returning them incrementally
