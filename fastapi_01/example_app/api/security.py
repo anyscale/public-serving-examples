@@ -125,6 +125,35 @@ async def get_current_active_user(
     return current_user
 
 
+async def verify_token(token: str) -> User:
+    """
+    Verify a token and return the user if valid.
+    This is used for manual token verification in streaming endpoints.
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+
+    user = get_user(USERS_DB, username=username)
+    if user is None:
+        raise credentials_exception
+
+    if user.disabled:
+        raise HTTPException(status_code=400, detail="Inactive user")
+
+    return user
+
+
 def requires_role(role: str):
     """Dependency to check if user has a specific role."""
 

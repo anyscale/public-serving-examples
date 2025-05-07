@@ -53,3 +53,5 @@ Thumbs.db
 *.log
 tmp/
 temp/
+
+frontend/node_modules/

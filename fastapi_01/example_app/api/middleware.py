@@ -129,6 +129,11 @@ def add_middleware(app: FastAPI) -> None:
             "X-Rate-Limit-Limit",
             "X-Rate-Limit-Remaining",
             "X-Rate-Limit-Reset",
+            # These headers are needed for SSE/EventSource
+            "Content-Type",
+            "Cache-Control",
+            "Connection",
+            "X-Accel-Buffering",
         ],
     )
 

@@ -112,7 +112,7 @@ async def filter_entities(
 
     # Get all entities
     result = await entity_recognizer.recognize_entities.remote(text)
-
+    
     # Filter entities
     filtered_entities = result["entities"]
 
