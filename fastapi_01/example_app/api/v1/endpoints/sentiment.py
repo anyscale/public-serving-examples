@@ -7,7 +7,7 @@ import json
 
 from example_app.api.models import TextRequest, SentimentResponse
 from example_app.api.security import get_current_active_user, User, requires_role
-from example_app.serve import get_deployment
+from example_app.serve import get_sentiment_analyzer
 from example_app.db.database import generate_cache_key, get_cached_response, set_cached_response, store_request_history
 
 router = APIRouter(prefix="/sentiment", tags=["sentiment"])
@@ -15,7 +15,8 @@ router = APIRouter(prefix="/sentiment", tags=["sentiment"])
 @router.post("", response_model=SentimentResponse)
 async def analyze_sentiment(
     request: TextRequest,
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
+    sentiment_analyzer = Depends(get_sentiment_analyzer)
 ):
     """
     Analyze sentiment of the provided text.
@@ -28,9 +29,6 @@ async def analyze_sentiment(
     
     if cached_result:
         return cached_result
-    
-    # Get Ray Serve deployment
-    sentiment_analyzer = get_deployment("sentiment_analyzer")
     
     # Call model
     result = await sentiment_analyzer.analyze.remote(request.text, request.language)

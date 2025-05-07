@@ -8,7 +8,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
     name="sentiment_analyzer",
     num_replicas=1,
     ray_actor_options={"num_cpus": 1, "num_gpus": 0},
-    max_concurrent_queries=10
+    max_ongoing_requests=10
 )
 class SentimentAnalyzer:
     def __init__(self):
@@ -61,11 +61,5 @@ class SentimentAnalyzer:
         
     @serve.batch
     async def batch_analyze(self, texts: List[str]) -> List[Dict[str, Any]]:
-        """Analyze sentiment for a batch of texts."""
-        results = []
-        
-        for text in texts:
-            result = await self.analyze(text)
-            results.append(result)
-            
-        return results 
+        # TODO: Implement batch sentiment analysis
+        pass

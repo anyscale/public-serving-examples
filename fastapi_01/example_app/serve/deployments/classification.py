@@ -8,7 +8,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipe
     name="text_classifier",
     num_replicas=1,
     ray_actor_options={"num_cpus": 1, "num_gpus": 0},
-    max_concurrent_queries=10
+    max_ongoing_requests=10
 )
 class TextClassifier:
     def __init__(self):
@@ -59,11 +59,5 @@ class TextClassifier:
         
     @serve.batch
     async def batch_classify(self, texts: List[str], labels: List[str], multi_label: bool = False) -> List[Dict[str, Any]]:
-        """Classify a batch of texts."""
-        results = []
-        
-        for text in texts:
-            result = await self.classify(text, labels, multi_label)
-            results.append(result)
-            
-        return results 
+        # TODO: Implement batch classification
+        pass

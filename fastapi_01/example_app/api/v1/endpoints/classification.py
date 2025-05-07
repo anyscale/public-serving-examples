@@ -2,17 +2,18 @@ from typing import List, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, status, Path, Query
 from fastapi.responses import JSONResponse
 
-from exmaple_app.api.models import ClassificationRequest, ClassificationResponse
-from exmaple_app.api.security import get_current_active_user, User
-from exmaple_app.serve import get_deployment
-from exmaple_app.db.database import generate_cache_key, get_cached_response, set_cached_response, store_request_history
+from example_app.api.models import ClassificationRequest, ClassificationResponse
+from example_app.api.security import get_current_active_user, User
+from example_app.serve import get_deployment, get_text_classifier
+from example_app.db.database import generate_cache_key, get_cached_response, set_cached_response, store_request_history
 
 router = APIRouter(prefix="/classify", tags=["classification"])
 
 @router.post("", response_model=ClassificationResponse)
 async def classify_text(
     request: ClassificationRequest,
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
+    classifier = Depends(get_text_classifier)
 ):
     """
     Classify text into given categories.
@@ -35,9 +36,6 @@ async def classify_text(
     
     if cached_result:
         return cached_result
-    
-    # Get Ray Serve deployment
-    classifier = get_deployment("text_classifier")
     
     # Call model
     result = await classifier.classify.remote(
@@ -90,18 +88,6 @@ class ClassificationError(Exception):
     def __init__(self, name: str, message: str):
         self.name = name
         self.message = message
-
-@router.exception_handler(ClassificationError)
-async def classification_error_handler(request, exc):
-    """Custom exception handler for classification errors."""
-    return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        content={
-            "error_type": exc.name,
-            "detail": exc.message,
-            "error_code": 1001
-        }
-    )
 
 @router.post("/custom")
 async def custom_classification(

@@ -1,57 +1,92 @@
-# FastAPI and Ray Serve Integration: Design Pattern
+# FastAPI NLP API Demo
 
-## Project Overview
-This project demonstrates a design pattern for integrating FastAPI with Ray Serve that prioritizes separation of concerns and supports full FastAPI functionality.
+This repository contains a demo FastAPI application that provides NLP (Natural Language Processing) services and a Jupyter notebook to interact with the API.
 
-## Design Goals
+## Features
 
-1. **Separation of Concerns**
-   - Keep FastAPI code separate from Ray Serve implementation
-   - Enable teams to work independently on their respective components
+The API provides the following NLP capabilities:
+- Sentiment Analysis
+- Named Entity Recognition 
+- Text Classification
+- WebSocket real-time processing
 
-2. **Team Structure Support**
-   - FastAPI teams can build routes, endpoints, and handlers without deep Ray Serve knowledge
-   - Ray Serve teams can develop deployments as callable services 
-   - Infrastructure teams can manage the integration layer
+## Getting Started
 
-3. **Full FastAPI Feature Support**
-   - Support the complete FastAPI feature set without limitations
-   - Demonstrate seamless integration with Ray Serve
+### Prerequisites
 
-4. **Integration Demonstration**
-   - Showcase practical patterns for calling Ray Serve Deployments from FastAPI endpoints
+- Python 3.7+
+- FastAPI
+- Ray Serve (for model deployments)
+- Jupyter Notebook
 
-## Supported FastAPI Features
+### Installation
 
-| Category | Description | APIs/Plugins |
-|----------|-------------|--------------|
-| **Core API Features** | | |
-| Define Endpoints | HTTP endpoints for inference/health checks | `@app.get`, `@app.post`, `@app.put`, `@app.delete` |
-| Request Validation | Input validation and output serialization | Pydantic models |
-| Metadata | Parameter enrichment for docs/validation | `Query()`, `Path()`, `Header()`, `Cookie()` |
-| Dependency Injection | Shared resource injection | `Depends()` |
-| Request/Response Access | Headers, status codes, cookies | `Request`, `Response` |
-| Streaming | Stream inference results | `StreamingResponse` |
-| WebSockets | Real-time communication | `@app.websocket` |
-| **App Lifecycle** | | |
-| Middleware | Global logic (logging, CORS, metrics) | `@app.middleware("http")` |
-| Event Handlers | Startup/shutdown hooks | `@app.on_event()` |
-| Background Tasks | Post-response jobs | `BackgroundTasks` |
-| Exception Handlers | Consistent error handling | `@app.exception_handler()` |
-| **Architecture** | | |
-| Modular Routes | Organized endpoints | `APIRouter` |
-| API Versioning | Backward compatibility | Path prefixes, versioning libraries |
-| **Security** | | |
-| Authentication | Endpoint security | OAuth2, JWT libraries |
-| Access Control | Role-based restrictions | Custom logic with `Depends()` |
-| **Observability** | | |
-| Metrics & Tracing | Performance monitoring | OpenTelemetry, Prometheus |
-| Logging | Request and application logs | Python logging + middleware |
-| **Performance** | | |
-| Caching | Response/model result caching | Redis, caching libraries |
-| Rate Limiting | Request frequency control | Rate limiting libraries |
-| **Model Management** | | |
-| Model Registry | Model versioning and retrieval | MLflow, cloud storage, Hugging Face |
+1. Clone this repository
+2. Install the dependencies:
+```bash
+pip install -r requirements.txt
+```
+3. Start the FastAPI server:
+```bash
+uvicorn example_app.main:app --reload
+```
 
-4. Showcase how to call into Ray Serve's Deployment from FastAPI
+## Using the Jupyter Notebook
+
+The repository includes a Jupyter notebook (`fastapi_nlp_api_demo.ipynb`) that demonstrates how to interact with all the API endpoints:
+
+1. Launch Jupyter Notebook:
+```bash
+jupyter notebook
+```
+
+2. Open `fastapi_nlp_api_demo.ipynb`
+
+3. Update the configuration in the second cell:
+```python
+# API configuration
+BASE_URL = "http://localhost:8000/api/v1"
+# Default credentials (update these)
+USERNAME = "admin"
+PASSWORD = "password"
+```
+
+4. Run all cells to see examples of:
+   - Authentication and token acquisition
+   - Health checks
+   - Sentiment analysis
+   - Named entity recognition
+   - Text classification
+   - WebSocket connections for real-time processing
+   - Admin actions
+
+## API Documentation
+
+When the API is running, the auto-generated documentation is available at:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+
+## Example Curl Commands
+
+You can also interact with the API using curl commands:
+
+```bash
+# Get an access token
+curl -X POST "http://localhost:8000/api/v1/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=admin&password=password"
+
+# Check API health
+curl -X GET "http://localhost:8000/api/v1/health"
+
+# Analyze sentiment
+curl -X POST "http://localhost:8000/api/v1/sentiment" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "I love this product!", "language": "en"}'
+```
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 

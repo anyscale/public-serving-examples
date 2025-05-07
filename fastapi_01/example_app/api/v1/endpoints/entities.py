@@ -8,7 +8,7 @@ from fastapi import BackgroundTasks
 
 from example_app.api.models import TextRequest, EntityResponse
 from example_app.api.security import get_current_active_user, User
-from example_app.serve import get_deployment
+from example_app.serve import get_deployment, get_entity_recognizer
 from example_app.db.database import generate_cache_key, get_cached_response, set_cached_response, store_request_history
 
 router = APIRouter(prefix="/entities", tags=["entities"])
@@ -16,7 +16,8 @@ router = APIRouter(prefix="/entities", tags=["entities"])
 @router.post("", response_model=EntityResponse)
 async def extract_entities(
     request: TextRequest,
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
+    entity_recognizer = Depends(get_entity_recognizer)
 ):
     """
     Extract named entities from text.
@@ -30,10 +31,6 @@ async def extract_entities(
     if cached_result:
         return cached_result
     
-    # Get Ray Serve deployment
-    entity_recognizer = get_deployment("entity_recognizer")
-    
-    # Call model
     result = await entity_recognizer.recognize_entities.remote(request.text)
     
     # Cache result

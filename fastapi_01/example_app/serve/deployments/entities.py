@@ -8,7 +8,7 @@ from transformers import AutoTokenizer, AutoModelForTokenClassification, pipelin
     name="entity_recognizer",
     num_replicas=1,
     ray_actor_options={"num_cpus": 1, "num_gpus": 0},
-    max_concurrent_queries=10
+    max_ongoing_requests=10
 )
 class EntityRecognizer:
     def __init__(self):
@@ -46,10 +46,10 @@ class EntityRecognizer:
                 "start": entity["start"],
                 "end": entity["end"],
                 "type": entity["entity_group"],
-                "score": entity["score"]
+                "score": float(entity["score"])
             })
             
-        processing_time = time.time() - start_time
+        processing_time = float(time.time() - start_time)
             
         return {
             "text": text,
@@ -59,11 +59,5 @@ class EntityRecognizer:
         
     @serve.batch
     async def batch_recognize(self, texts: List[str]) -> List[Dict[str, Any]]:
-        """Recognize entities in a batch of texts."""
-        results = []
-        
-        for text in texts:
-            result = await self.recognize_entities(text)
-            results.append(result)
-            
-        return results 
+        # TODO: Implement batch entity recognition
+        pass

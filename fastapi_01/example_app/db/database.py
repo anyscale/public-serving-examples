@@ -2,7 +2,19 @@ import json
 import hashlib
 from typing import Optional, Dict, Any, List
 import redis.asyncio as redis
+import numpy as np
 from example_app.config import REDIS_URI
+
+# Custom JSON encoder to handle NumPy data types
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NumpyEncoder, self).default(obj)
 
 # Global redis connection pool
 redis_pool = None
@@ -32,7 +44,7 @@ async def get_cached_response(key: str) -> Optional[Dict[str, Any]]:
 async def set_cached_response(key: str, data: Dict[str, Any], expire: int = 300):
     """Set cached response in Redis."""
     r = await get_redis()
-    await r.setex(key, expire, json.dumps(data))
+    await r.setex(key, expire, json.dumps(data, cls=NumpyEncoder))
 
 async def generate_cache_key(prefix: str, content: str) -> str:
     """Generate a cache key for a given content."""
@@ -71,7 +83,7 @@ async def store_request_history(user_id: str, endpoint: str, request_data: Dict[
         "user_id": user_id,
         "endpoint": endpoint,
         "request_data": request_data,
-        "timestamp": r.time()[0]  # Unix timestamp
+        "timestamp": (await r.time())[0]  # Unix timestamp
     }
     
     await r.set(key, json.dumps(history_data))

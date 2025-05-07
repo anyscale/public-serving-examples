@@ -15,7 +15,7 @@ USERS_DB = {
         "username": "admin",
         "full_name": "Administrator",
         "email": "admin@example.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",  # "password"
+        "hashed_password": "$2b$12$yt8KzuZvmaFpb8L4w96mhuQCgA9HJdUM91Yz/8JoGOUC4fxsBR16a",  # "password"
         "disabled": False,
         "roles": ["admin", "user"]
     },
@@ -23,7 +23,7 @@ USERS_DB = {
         "username": "demo",
         "full_name": "Demo User",
         "email": "demo@example.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",  # "password"
+        "hashed_password": "$2b$12$yt8KzuZvmaFpb8L4w96mhuQCgA9HJdUM91Yz/8JoGOUC4fxsBR16a",  # "password"
         "disabled": False,
         "roles": ["user"]
     }
