@@ -6,6 +6,7 @@ from typing import Dict, Any
 from example_app.serve.deployments.sentiment import SentimentAnalyzer
 from example_app.serve.deployments.classification import TextClassifier
 from example_app.serve.deployments.entities import EntityRecognizer
+from example_app.serve.deployments.streaming_analyzer import StreamingAnalyzer
 from ray.serve.api import DeploymentHandle
 from example_app.config import RAY_ADDRESS
 from example_app.serve.ingress_deployment import IngressDeployment
@@ -14,7 +15,7 @@ from example_app.serve.ingress_deployment import IngressDeployment
 INGRESS_APP_NAME = "ingress-app"
 
 
-def start_serve(fastapi_app: FastAPI) -> DeploymentHandle:
+def get_serve_app(fastapi_app: FastAPI) -> DeploymentHandle:
     # Deploy the ingress deployment
     serve_ingress_app = (
         serve.deployment(serve.ingress(fastapi_app)(IngressDeployment))
@@ -22,12 +23,15 @@ def start_serve(fastapi_app: FastAPI) -> DeploymentHandle:
             name="ingress-deployment",
             num_replicas=1,
         )
-        .bind(SentimentAnalyzer.bind(), TextClassifier.bind(), EntityRecognizer.bind())
+        .bind(
+            SentimentAnalyzer.bind(), 
+            TextClassifier.bind(), 
+            EntityRecognizer.bind(),
+            StreamingAnalyzer.bind()
+        )
     )
 
-    return serve.run(
-        serve_ingress_app, name=INGRESS_APP_NAME, route_prefix="/", blocking=True
-    )
+    return serve_ingress_app
 
 
 def get_deployment(name: str) -> DeploymentHandle:

@@ -12,9 +12,10 @@ from ray import serve
 from example_app.api.middleware import add_middleware
 from example_app.api.v1.router import router as v1_router
 from example_app.db.database import close_redis
-from example_app.serve import start_serve
+from example_app.serve import get_serve_app
 from example_app.config import PROJECT_NAME
 from example_app.serve.ingress_deployment import IngressDeployment
+from example_app.serve.serve_config import INGRESS_APP_NAME
 from example_app.telemetry import setup_opentelemetry, get_tracer
 from example_app.serve.deployments.sentiment import SentimentAnalyzer
 from example_app.serve.deployments.classification import TextClassifier
@@ -85,4 +86,7 @@ async def classification_error_handler(request, exc):
 # Start time for uptime calculation
 start_time = time.time()
 
-app = start_serve(fastapi_app)
+serve_ingress_app = get_serve_app(fastapi_app)
+
+if __name__ == "__main__":
+    serve.run(serve_ingress_app, name=INGRESS_APP_NAME, route_prefix="/", blocking=True)

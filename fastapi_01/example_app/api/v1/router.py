@@ -27,6 +27,7 @@ from example_app.serve import get_deployment
 from example_app.api.v1.endpoints.sentiment import router as sentiment_router
 from example_app.api.v1.endpoints.classification import router as classification_router
 from example_app.api.v1.endpoints.entities import router as entities_router
+from example_app.api.v1.endpoints.streaming import router as streaming_router
 
 # Create the API v1 router
 router = APIRouter(prefix=API_V1_STR)
@@ -35,6 +36,7 @@ router = APIRouter(prefix=API_V1_STR)
 router.include_router(sentiment_router)
 router.include_router(classification_router)
 router.include_router(entities_router)
+router.include_router(streaming_router)
 
 
 # Authentication endpoints

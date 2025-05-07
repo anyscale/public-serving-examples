@@ -8,7 +8,7 @@ from transformers import AutoTokenizer, AutoModelForTokenClassification, pipelin
 @serve.deployment(
     name="entity_recognizer",
     num_replicas=1,
-    ray_actor_options={"num_cpus": 1, "num_gpus": 0},
+    ray_actor_options={"num_cpus": .5, "num_gpus": 0},
     max_ongoing_requests=10,
 )
 class EntityRecognizer:
