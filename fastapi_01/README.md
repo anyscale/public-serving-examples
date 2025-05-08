@@ -17,6 +17,96 @@ From the user requirements, we identify key goals:
 
 # Architecture
 
+## Architectural Comparison with Ray's Official Documentation
+
+Ray's official documentation generally promotes a Serve-first mindset where users define class-based Ray Serve deployments with an `__init__` and `__call__` method, optionally wrapping FastAPI apps inside the Serve deployment. While that works for small to medium use cases, it can create architectural limitations when building large-scale FastAPI applications. Here's a breakdown of the key contrasts between this approach and the typical Ray documentation pattern:
+
+### ⚙️ 1. Ownership of the FastAPI App
+
+#### 📘 Ray Docs Pattern:
+- FastAPI app is created inside a RayServeDeployment class
+- Developers define endpoints inside the deployment or attach a FastAPI app in `__init__`
+
+```python
+@serve.deployment
+class MyDeployment:
+    @self.app.get("/hello")
+    async def hello(self):
+        return {"msg": "hello"}
+```
+
+#### ✅ This Pattern:
+- FastAPI is the owner of routing, middleware, OpenAPI, etc.
+- Ray Serve wraps around the existing app via `serve.run(app)` or an entrypoint deployment
+- Clean separation between API layer and deployment logic
+
+**Advantage**: Enables modular, large-scale FastAPI apps with routers, DI, middleware, WebSockets, and static file serving without entangling with Serve logic.
+
+### 🧱 2. Layered Architecture & Separation of Concerns
+
+#### 📘 Ray Docs Pattern:
+- Encourages colocating model logic and API logic in the same deployment
+- Minimal guidance on layering API vs processing logic
+
+#### ✅ This Pattern:
+- Explicit layered architecture:
+  - API Layer → FastAPI
+  - Integration Layer → Serialization and handle injection
+  - Model Layer → Ray Serve deployments per NLP model
+  - Frontend Layer → Served through FastAPI
+
+**Advantage**: Easier testing, scaling, and division of responsibilities across teams. Each component can evolve independently.
+
+### 🔄 3. Serve Handles and Dependency Injection
+
+#### 📘 Ray Docs Pattern:
+- Serve handles are often accessed via DeploymentHandle objects available as class attributes.
+
+#### ✅ This Pattern:
+- Serve handles are injected into FastAPI routes as dependencies
+- Encourages declarative and testable code
+
+```python
+@router.post("/classify")
+async def classify(request: InputModel, classifier_handle = Depends(get_classifier_handle)):
+    result = await classifier_handle.classify.remote(request.text)
+```
+
+**Advantage**: Enables clearer interfaces, better unit tests, and more idiomatic FastAPI.
+
+### 📈 4. Startup and Lifecycle Events
+
+#### 📘 Ray Docs Pattern:
+- `@app.on_event("startup")` is discouraged or not well-integrated in Serve-managed apps
+- Ray Serve deployments rely on `__init__` for lifecycle logic
+
+#### ✅ This Pattern:
+- Supports full FastAPI lifecycle: `@app.on_event`, lifespan context, etc.
+- Ray Serve lifecycle (`__init__`, `__del__`, or custom cleanup) is orthogonal to FastAPI's
+
+**Advantage**: Enables side effects (e.g., DB connection, telemetry) in a standard FastAPI way without coupling them to model deployments.
+
+### 📦 5. FastAPI Plugin Integration
+
+#### 📘 Ray Docs Pattern:
+- Limited to plugins that are compatible with `cloudpickle`, due to the need to serialize FastAPI app instances inside Serve deployments.
+- Many popular plugins (e.g., OpenTelemetry for FastAPI) do not work reliably with this approach.
+
+#### ✅ This Pattern:
+- Fully compatible with any FastAPI plugin, including OpenTelemetry and other middleware.
+- Since the FastAPI app is defined at the top level and not serialized, there are no restrictions on the types of features or extensions developers can use.
+
+### 📦 6. Frontend Integration
+
+#### 📘 Ray Docs Pattern:
+- No guidance on serving frontend apps with FastAPI and Ray Serve
+
+#### ✅ This Pattern:
+- Frontend (React) is built into static files and served by FastAPI
+- Frontend and backend share the same ingress
+
+**Advantage**: Unified DevOps flow and deployment for full-stack services.
+
 This project implements a layered architecture that integrates FastAPI with Ray Serve:
 
 ## 1. API Layer (FastAPI)
