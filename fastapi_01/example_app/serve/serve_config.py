@@ -1,14 +1,14 @@
-from fastapi import FastAPI
-from ray import serve
 from typing import Callable
 
-from example_app.serve.deployments.sentiment import SentimentAnalyzer
+from fastapi import FastAPI
+from ray import serve
+from ray.serve.api import Application, DeploymentHandle
+
 from example_app.serve.deployments.classification import TextClassifier
 from example_app.serve.deployments.entities import EntityRecognizer
+from example_app.serve.deployments.sentiment import SentimentAnalyzer
 from example_app.serve.deployments.streaming_analyzer import StreamingAnalyzer
-from ray.serve.api import DeploymentHandle, Application
 from example_app.serve.ingress_deployment import IngressDeployment
-
 
 INGRESS_APP_NAME = "ingress-app"
 

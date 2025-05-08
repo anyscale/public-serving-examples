@@ -1,18 +1,21 @@
-import time
 import asyncio
-from typing import Dict, Any, List, AsyncGenerator
+import logging
+import time
+from collections.abc import AsyncGenerator
+from typing import Any, Dict, List
+
+import nltk
 import torch
+from nltk.tokenize import sent_tokenize
 from ray import serve
 from transformers import (
-    AutoTokenizer,
     AutoModelForSequenceClassification,
-    pipeline,
     AutoModelForTokenClassification,
+    AutoTokenizer,
+    pipeline,
 )
-from nltk.tokenize import sent_tokenize
-import nltk
+
 from example_app.config import MODEL_CONFIGS
-import logging
 
 logger = logging.getLogger(__name__)
 

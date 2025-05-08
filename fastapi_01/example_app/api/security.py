@@ -1,12 +1,13 @@
 from datetime import datetime, timedelta
-from typing import Optional, Union, Dict, Any
+from typing import Any, Dict, Optional, Union
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
-from example_app.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+
+from example_app.config import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
 
 # Simple in-memory user database for demo purposes
 # In a real app, you would use a database

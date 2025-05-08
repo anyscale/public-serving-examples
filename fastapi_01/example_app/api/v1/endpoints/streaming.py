@@ -1,12 +1,13 @@
-from typing import List, Dict, Any, Optional
 import asyncio
 import json
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+import logging
+from typing import Any, Dict, List, Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-import logging
 
-from example_app.api.security import get_current_active_user, User, verify_token
+from example_app.api.security import User, get_current_active_user, verify_token
 from example_app.serve import get_streaming_analyzer
 
 router = APIRouter(prefix="/streaming", tags=["streaming"])

@@ -1,20 +1,15 @@
+import asyncio
+import time
+
 import pytest
 import ray
-from ray import serve
-import time
-import asyncio
 import requests
-import json
-from typing import Dict, List, Any
-
-# Import the deployment classes
-from example_app.serve.deployments.sentiment import SentimentAnalyzer
-from example_app.serve.deployments.classification import TextClassifier
-from example_app.serve.deployments.entities import EntityRecognizer
-from example_app.serve.deployments.streaming_analyzer import StreamingAnalyzer
+from ray import serve
 
 # Import config
 from example_app.config import RAY_ADDRESS
+
+# Import the deployment classes
 from example_app.serve.serve_config import INGRESS_APP_NAME
 
 # Test configuration

@@ -1,15 +1,16 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status, Path, Query
+
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 
 from example_app.api.models import ClassificationRequest, ClassificationResponse
-from example_app.api.security import get_current_active_user, User
-from example_app.serve import get_deployment, get_text_classifier
+from example_app.api.security import User, get_current_active_user
 from example_app.db.database import (
     generate_cache_key,
     get_cached_response,
     set_cached_response,
     store_request_history,
 )
+from example_app.serve import get_deployment, get_text_classifier
 
 router = APIRouter(prefix="/classify", tags=["classification"])
 

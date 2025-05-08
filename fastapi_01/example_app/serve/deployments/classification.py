@@ -1,8 +1,10 @@
 import time
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+
 import torch
 from ray import serve
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
+
 from example_app.config import MODEL_CONFIGS
 
 

@@ -1,8 +1,10 @@
-import json
 import hashlib
-from typing import Optional, Dict, Any, List
-import redis.asyncio as redis
+import json
+from typing import Any, Dict, List, Optional
+
 import numpy as np
+import redis.asyncio as redis
+
 from example_app.config import REDIS_URI
 
 

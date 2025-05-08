@@ -1,3 +1,7 @@
+# Disclaimer
+
+A significant portion of the code in this project was generated using Cursor LLM. As such, it may not be production-ready or handle edge cases robustly. The primary goal of this project is to illustrate an ideal code organization pattern for building large-scale applications with FastAPI and Ray Serve.
+
 # FastAPI NLP Processing Pipeline
 
 A real-time NLP processing pipeline built with FastAPI and Ray Serve that provides sentiment analysis, text classification, named entity recognition, and streaming capabilities.
@@ -47,7 +51,7 @@ This project implements a layered architecture that integrates FastAPI with Ray 
 - **Model Composition**: Deployments can call other deployments using handles
 - **Resource Isolation**: Each model runs in its own deployment with controlled resources
 
-## Frontend Deployment
+## 5. Frontend Deployment
 
 The frontend is deployed as part of the Ray Serve application and served through FastAPI's static file handling:
 
@@ -83,8 +87,10 @@ chmod +x start.sh
 
 Access:
 - Frontend: http://localhost:8000
-- API Docs: http://localhost:8000/docs
-- Jaeger UI: http://localhost:16686
+- API Documentation: http://localhost:8000/docs
+- ReDoc Documentation: http://localhost:8000/redoc
+- Jaeger UI (for tracing): http://localhost:16686
+- Ray Dashboard: http://127.0.0.1:8265/#/overview
 
 ## Demo Credentials
 - Regular user: `demo`/`password`
@@ -95,4 +101,11 @@ Access:
 ```bash
 docker compose up -d
 poetry run pytest tests/  -x
+```
+
+## Format Code
+
+```bash
+poetry run ruff format . --exclude "*.ipynb"
+poetry run ruff check --fix . --exclude "*.ipynb"
 ```

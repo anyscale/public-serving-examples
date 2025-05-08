@@ -2,7 +2,7 @@ from example_app.serve.deployments.classification import TextClassifier
 from example_app.serve.deployments.entities import EntityRecognizer
 from example_app.serve.deployments.sentiment import SentimentAnalyzer
 from example_app.serve.deployments.streaming_analyzer import StreamingAnalyzer
-from example_app.serve.serve_config import get_serve_app, get_deployment
+from example_app.serve.serve_config import get_deployment, get_serve_app
 
 __all__ = ["get_serve_app", "get_deployment"]
 

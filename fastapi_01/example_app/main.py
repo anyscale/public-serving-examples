@@ -1,17 +1,16 @@
 import logging
 import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from ray import serve
 
-from example_app.serve import get_serve_app
+from example_app.api.v1.endpoints.classification import ClassificationError
 from example_app.config import PROJECT_NAME
+from example_app.serve import get_serve_app
 from example_app.serve.serve_config import INGRESS_APP_NAME
 from example_app.telemetry import setup_opentelemetry
-from example_app.api.v1.endpoints.classification import ClassificationError
-from fastapi import status
 
 # Configure logging
 logging.basicConfig(

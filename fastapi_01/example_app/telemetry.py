@@ -1,5 +1,5 @@
-from typing import Optional
 import os
+from typing import Optional
 
 from fastapi import FastAPI
 from opentelemetry import trace

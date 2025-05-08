@@ -1,30 +1,31 @@
 from datetime import timedelta
+
 from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
-    status,
     WebSocket,
     WebSocketDisconnect,
+    status,
 )
 from fastapi.security import OAuth2PasswordRequestForm
 
+from example_app.api.models import HealthResponse
 from example_app.api.security import (
+    USERS_DB,
     Token,
     User,
-    USERS_DB,
     authenticate_user,
     create_access_token,
     get_current_active_user,
     requires_role,
 )
-from example_app.api.models import HealthResponse
-from example_app.config import ACCESS_TOKEN_EXPIRE_MINUTES, API_V1_STR
-from example_app.serve import get_deployment
-from example_app.api.v1.endpoints.sentiment import router as sentiment_router
 from example_app.api.v1.endpoints.classification import router as classification_router
 from example_app.api.v1.endpoints.entities import router as entities_router
+from example_app.api.v1.endpoints.sentiment import router as sentiment_router
 from example_app.api.v1.endpoints.streaming import router as streaming_router
+from example_app.config import ACCESS_TOKEN_EXPIRE_MINUTES, API_V1_STR
+from example_app.serve import get_deployment
 
 # Create the API v1 router
 router = APIRouter(prefix=API_V1_STR)

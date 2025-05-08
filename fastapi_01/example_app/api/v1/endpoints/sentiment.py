@@ -1,18 +1,19 @@
-from typing import List
-import time
-from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException, status
-from fastapi.responses import StreamingResponse
 import json
+import time
+from typing import List
 
-from example_app.api.models import TextRequest, SentimentResponse
-from example_app.api.security import get_current_active_user, User, requires_role
-from example_app.serve import get_sentiment_analyzer
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
+
+from example_app.api.models import SentimentResponse, TextRequest
+from example_app.api.security import User, get_current_active_user, requires_role
 from example_app.db.database import (
     generate_cache_key,
     get_cached_response,
     set_cached_response,
     store_request_history,
 )
+from example_app.serve import get_sentiment_analyzer
 
 router = APIRouter(prefix="/sentiment", tags=["sentiment"])
 
