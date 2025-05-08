@@ -33,6 +33,9 @@ fastapi_app = FastAPI(
 
 
 def app_init_func(app: FastAPI):
+    """
+    This function will be run on serve replica. Hence there is no interference with serialization and cloudpickle.
+    """
     from example_app.api.middleware import add_middleware
     from example_app.api.v1.router import router as v1_router
 
@@ -54,10 +57,14 @@ def app_init_func(app: FastAPI):
     add_middleware(app)
 
     # Add static files - frontend build
-    frontend_build_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "build")
+    frontend_build_dir = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "build"
+    )
     if os.path.exists(frontend_build_dir):
         logger.info(f"Mounting frontend static files from {frontend_build_dir}")
-        app.mount("/", StaticFiles(directory=frontend_build_dir, html=True), name="frontend")
+        app.mount(
+            "/", StaticFiles(directory=frontend_build_dir, html=True), name="frontend"
+        )
     else:
         logger.warning(f"Frontend build directory not found at {frontend_build_dir}")
 

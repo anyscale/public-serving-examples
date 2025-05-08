@@ -73,23 +73,29 @@ async def stream_entities(
                 await asyncio.sleep(0.2)
 
                 # Stream each entity
-                yield json.dumps(
-                    {
-                        "status": "extracting",
-                        "progress": (i + 1) / len(result["entities"]),
-                        "entity": entity,
-                    }
-                ) + "\n"
+                yield (
+                    json.dumps(
+                        {
+                            "status": "extracting",
+                            "progress": (i + 1) / len(result["entities"]),
+                            "entity": entity,
+                        }
+                    )
+                    + "\n"
+                )
 
         # Final result
-        yield json.dumps(
-            {
-                "status": "completed",
-                "text": result["text"],
-                "entities_count": len(result["entities"]),
-                "processing_time": result["processing_time"],
-            }
-        ) + "\n"
+        yield (
+            json.dumps(
+                {
+                    "status": "completed",
+                    "text": result["text"],
+                    "entities_count": len(result["entities"]),
+                    "processing_time": result["processing_time"],
+                }
+            )
+            + "\n"
+        )
 
     return StreamingResponse(generate(), media_type="application/json")
 

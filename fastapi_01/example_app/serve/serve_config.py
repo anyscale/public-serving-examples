@@ -17,15 +17,31 @@ def get_serve_app(fastapi_app: FastAPI, app_init_func: Callable = None) -> Appli
     # Deploy the ingress deployment
     serve_ingress_app: Application = (
         # TODO: This ingress api doesn't feel right. Allow passing ingress deployment into the function.
+        # Here I have modified ingress function to take in app_init_func as a parameter.
         serve.deployment(serve.ingress(fastapi_app, app_init_func)(IngressDeployment))
         .options(
             name="ingress-deployment",
             num_replicas=1,
+            ray_actor_options={
+                "num_cpus": 0.5,
+            },
         )
         .bind(
-            SentimentAnalyzer.bind(),
-            TextClassifier.bind(),
-            EntityRecognizer.bind(),
+            SentimentAnalyzer.options(
+                ray_actor_options={
+                    "num_cpus": 0.5,
+                }
+            ).bind(),
+            TextClassifier.options(
+                ray_actor_options={
+                    "num_cpus": 0.5,
+                }
+            ).bind(),
+            EntityRecognizer.options(
+                ray_actor_options={
+                    "num_cpus": 0.5,
+                }
+            ).bind(),
             StreamingAnalyzer.bind(),
         )
     )

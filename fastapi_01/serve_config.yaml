@@ -16,7 +16,7 @@ logging_config:
 applications:
 - name: ingress-app
   route_prefix: /
-  import_path: main:serve_ingress_app
+  import_path: example_app.main:serve_ingress_app
   runtime_env: {}
   deployments:
   - name: sentiment_analyzer
