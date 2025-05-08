@@ -1,14 +1,13 @@
 from typing import List, Dict, Any, Optional
 import asyncio
 import json
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-import ray
 import logging
 
 from example_app.api.security import get_current_active_user, User, verify_token
-from example_app.serve import get_deployment, get_streaming_analyzer
+from example_app.serve import get_streaming_analyzer
 
 router = APIRouter(prefix="/streaming", tags=["streaming"])
 
@@ -33,9 +32,15 @@ class StreamingTextRequest(BaseModel):
 async def stream_analyze_text(
     request: StreamingTextRequest = None,
     text: str = Query(None, description="Text to analyze"),
-    analysis_types: List[str] = Query(["sentiment", "entities"], description="Types of analysis to perform"),
-    min_confidence: float = Query(0.5, description="Minimum confidence threshold for entities"),
-    chunk_delay: Optional[float] = Query(None, description="Optional delay between chunks in seconds"),
+    analysis_types: List[str] = Query(
+        ["sentiment", "entities"], description="Types of analysis to perform"
+    ),
+    min_confidence: float = Query(
+        0.5, description="Minimum confidence threshold for entities"
+    ),
+    chunk_delay: Optional[float] = Query(
+        None, description="Optional delay between chunks in seconds"
+    ),
     token: str = Query(None, description="Authentication token"),
     streaming_analyzer=Depends(get_streaming_analyzer),
 ):
@@ -47,13 +52,13 @@ async def stream_analyze_text(
 
     Results are streamed as Server-Sent Events (SSE).
     """
-    
+
     # Manually verify token for SSE connections
     if token:
         try:
             # This will raise an exception if token is invalid
             user = await verify_token(token)
-        except Exception as e:
+        except Exception:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication credentials",
@@ -65,22 +70,25 @@ async def stream_analyze_text(
             detail="Authentication required",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     # Handle both query parameters (GET) and JSON body (POST)
     request_text = text if text else (request.text if request else None)
-    request_analysis_types = analysis_types if request is None else request.analysis_types
+    request_analysis_types = (
+        analysis_types if request is None else request.analysis_types
+    )
     request_chunk_delay = chunk_delay if request is None else request.chunk_delay
-    
+
     if not request_text:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Text parameter is required"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Text parameter is required"
         )
 
     async def generate():
         # Send initial processing message
         yield f"data: {json.dumps({'status': 'processing', 'message': 'Starting analysis'})}\n\n"
-        await asyncio.sleep(0.1)  # Small delay to ensure the client processes the first message
+        await asyncio.sleep(
+            0.1
+        )  # Small delay to ensure the client processes the first message
 
         try:
             # Start the streaming analysis
@@ -90,28 +98,30 @@ async def stream_analyze_text(
             ).stream_analysis.remote(request_text, request_analysis_types):
                 # Add chunk index for tracking
                 chunk_count += 1
-                
+
                 # Ensure chunk_id is present for frontend mapping
-                if 'chunk_id' not in chunk_result:
-                    chunk_result['chunk_id'] = chunk_count
-                    
+                if "chunk_id" not in chunk_result:
+                    chunk_result["chunk_id"] = chunk_count
+
                 # Add progress information if not present
-                if 'progress' not in chunk_result and 'total_chunks' in chunk_result:
-                    chunk_result['progress'] = chunk_count / chunk_result['total_chunks']
-                
+                if "progress" not in chunk_result and "total_chunks" in chunk_result:
+                    chunk_result["progress"] = (
+                        chunk_count / chunk_result["total_chunks"]
+                    )
+
                 # Format entities for frontend compatibility
-                if 'entities' in chunk_result and chunk_result['entities']:
+                if "entities" in chunk_result and chunk_result["entities"]:
                     # Add correct start/end positions for entity highlighting
-                    for entity in chunk_result['entities']:
+                    for entity in chunk_result["entities"]:
                         # Make sure we use the naming convention expected by frontend
-                        entity['text'] = entity.get('word', '')
-                        entity['type'] = entity.get('entity', 'MISC')
-                        entity['confidence'] = entity.get('score', 0.5)
-                        
+                        entity["text"] = entity.get("word", "")
+                        entity["type"] = entity.get("entity", "MISC")
+                        entity["confidence"] = entity.get("score", 0.5)
+
                         # Ensure these are named correctly for frontend
-                        entity['start_in_chunk'] = entity.get('start', 0)
-                        entity['end_in_chunk'] = entity.get('end', 0)
-                
+                        entity["start_in_chunk"] = entity.get("start", 0)
+                        entity["end_in_chunk"] = entity.get("end", 0)
+
                 # Convert result to JSON and yield as SSE
                 yield f"data: {json.dumps(chunk_result)}\n\n"
                 await asyncio.sleep(0.1)  # Small delay between chunks for stability
@@ -126,9 +136,10 @@ async def stream_analyze_text(
         except Exception as e:
             # Log the error
             import traceback
+
             logger = logging.getLogger("api.streaming")
             logger.error(f"Streaming error: {str(e)}\n{traceback.format_exc()}")
-            
+
             # Send error message
             error_msg = f"Error during analysis: {str(e)}"
             yield f"data: {json.dumps({'status': 'error', 'message': error_msg})}\n\n"

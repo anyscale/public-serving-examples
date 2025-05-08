@@ -1,6 +1,5 @@
 import os
 import secrets
-from typing import Optional, Dict, Any
 
 # API Settings
 API_V1_STR = "/api/v1"

@@ -1,10 +1,10 @@
 import time
 import json
 import uuid
-from typing import Callable, Dict, Any
+from typing import Callable
 import logging
 
-from fastapi import FastAPI, Request, Response, status, HTTPException
+from fastapi import FastAPI, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware

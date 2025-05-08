@@ -1,26 +1,15 @@
 import logging
-import time
-import json
-import numpy as np
 import os
-from typing import Dict, Any
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
 from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
 from ray import serve
 
-from example_app.db.database import close_redis
 from example_app.serve import get_serve_app
 from example_app.config import PROJECT_NAME
-from example_app.serve.ingress_deployment import IngressDeployment
 from example_app.serve.serve_config import INGRESS_APP_NAME
-from example_app.telemetry import setup_opentelemetry, get_tracer
-from example_app.serve.deployments.sentiment import SentimentAnalyzer
-from example_app.serve.deployments.classification import TextClassifier
-from example_app.serve.deployments.entities import EntityRecognizer
+from example_app.telemetry import setup_opentelemetry
 from example_app.api.v1.endpoints.classification import ClassificationError
 from fastapi import status
 

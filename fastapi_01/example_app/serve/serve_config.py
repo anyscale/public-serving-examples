@@ -1,14 +1,12 @@
 from fastapi import FastAPI
-import ray
 from ray import serve
-from typing import Callable, Dict, Any
+from typing import Callable
 
 from example_app.serve.deployments.sentiment import SentimentAnalyzer
 from example_app.serve.deployments.classification import TextClassifier
 from example_app.serve.deployments.entities import EntityRecognizer
 from example_app.serve.deployments.streaming_analyzer import StreamingAnalyzer
 from ray.serve.api import DeploymentHandle, Application
-from example_app.config import RAY_ADDRESS
 from example_app.serve.ingress_deployment import IngressDeployment
 
 

@@ -1,9 +1,14 @@
 import time
 import asyncio
-from typing import Dict, Any, List, Generator, AsyncGenerator
+from typing import Dict, Any, List, AsyncGenerator
 import torch
 from ray import serve
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline, AutoModelForTokenClassification
+from transformers import (
+    AutoTokenizer,
+    AutoModelForSequenceClassification,
+    pipeline,
+    AutoModelForTokenClassification,
+)
 from nltk.tokenize import sent_tokenize
 import nltk
 from example_app.config import MODEL_CONFIGS
@@ -24,7 +29,7 @@ class StreamingAnalyzer:
         nltk.download("punkt")
         nltk.download("punkt_tab")
         print("NLTK data downloaded")
-        
+
         # Load models
         self.sentiment_model_name = MODEL_CONFIGS["sentiment"]["model_name"]
         self.tokenizer = AutoTokenizer.from_pretrained(self.sentiment_model_name)
@@ -35,8 +40,10 @@ class StreamingAnalyzer:
         # Set up NER pipeline - improved with aggregation strategy
         self.ner_model_name = MODEL_CONFIGS["ner"]["model_name"]
         self.ner_tokenizer = AutoTokenizer.from_pretrained(self.ner_model_name)
-        self.ner_model = AutoModelForTokenClassification.from_pretrained(self.ner_model_name)
-        
+        self.ner_model = AutoModelForTokenClassification.from_pretrained(
+            self.ner_model_name
+        )
+
         # Set device
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.sentiment_model.to(self.device)
@@ -97,23 +104,31 @@ class StreamingAnalyzer:
     async def _extract_entities(self, text: str) -> List[Dict[str, Any]]:
         """Extract named entities from text chunk."""
         entities_output = self.ner_pipeline(text)
-        
+
         # Format entities to match the frontend expectations
         formatted_entities = []
         for entity in entities_output:
-            formatted_entities.append({
-                "text": entity.get("word", ""),
-                "word": entity.get("word", ""),  # Keep for backward compatibility
-                "start": entity.get("start", 0),
-                "end": entity.get("end", 0),
-                "entity": entity.get("entity_group", "MISC"),
-                "type": entity.get("entity_group", "MISC"),  # Also include type for frontend
-                "score": float(entity.get("score", 0.5)),
-                "confidence": float(entity.get("score", 0.5)),  # Include both score and confidence
-                "start_in_chunk": entity.get("start", 0),  # Add these for frontend compatibility
-                "end_in_chunk": entity.get("end", 0)
-            })
-        
+            formatted_entities.append(
+                {
+                    "text": entity.get("word", ""),
+                    "word": entity.get("word", ""),  # Keep for backward compatibility
+                    "start": entity.get("start", 0),
+                    "end": entity.get("end", 0),
+                    "entity": entity.get("entity_group", "MISC"),
+                    "type": entity.get(
+                        "entity_group", "MISC"
+                    ),  # Also include type for frontend
+                    "score": float(entity.get("score", 0.5)),
+                    "confidence": float(
+                        entity.get("score", 0.5)
+                    ),  # Include both score and confidence
+                    "start_in_chunk": entity.get(
+                        "start", 0
+                    ),  # Add these for frontend compatibility
+                    "end_in_chunk": entity.get("end", 0),
+                }
+            )
+
         return formatted_entities
 
     async def stream_analysis(

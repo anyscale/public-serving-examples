@@ -1,11 +1,9 @@
 from datetime import timedelta
-from typing import Dict, Any, List
 from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
     status,
-    Body,
     WebSocket,
     WebSocketDisconnect,
 )
@@ -14,7 +12,6 @@ from fastapi.security import OAuth2PasswordRequestForm
 from example_app.api.security import (
     Token,
     User,
-    UserInDB,
     USERS_DB,
     authenticate_user,
     create_access_token,

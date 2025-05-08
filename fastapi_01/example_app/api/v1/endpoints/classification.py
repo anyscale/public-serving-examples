@@ -1,6 +1,5 @@
-from typing import List, Dict, Any
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, Path, Query
-from fastapi.responses import JSONResponse
 
 from example_app.api.models import ClassificationRequest, ClassificationResponse
 from example_app.api.security import get_current_active_user, User

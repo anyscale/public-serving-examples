@@ -1,10 +1,8 @@
-from typing import List, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from typing import List
+from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
 import json
 import asyncio
-import time
-from fastapi import BackgroundTasks
 
 from example_app.api.models import TextRequest, EntityResponse
 from example_app.api.security import get_current_active_user, User
@@ -112,7 +110,7 @@ async def filter_entities(
 
     # Get all entities
     result = await entity_recognizer.recognize_entities.remote(text)
-    
+
     # Filter entities
     filtered_entities = result["entities"]
 

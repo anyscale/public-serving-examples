@@ -1,8 +1,7 @@
-from typing import List, Dict, Any, Optional
+from typing import List
 import time
-from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException, status, Query
+from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException, status
 from fastapi.responses import StreamingResponse
-import ray
 import json
 
 from example_app.api.models import TextRequest, SentimentResponse
