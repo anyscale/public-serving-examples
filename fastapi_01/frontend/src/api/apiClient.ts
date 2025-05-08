@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
-// Base API URL
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+// Base API URL - using relative path so it works when served from Ray Serve
+const API_BASE_URL = '/api/v1';
 
 /**
  * Creates a configured axios instance for API requests

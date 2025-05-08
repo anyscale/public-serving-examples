@@ -39,3 +39,29 @@ pre {
 ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
+
+/* Fix for text inputs with dark backgrounds */
+input, textarea, select {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+/* Fix for text contrast in components */
+.bg-white, [class*="bg-gray-"], [class*="bg-blue-"], [class*="bg-green-"], [class*="bg-red-"] {
+  color: #1f2937;
+}
+
+/* Override for buttons and elements that need light text */
+button.text-white,
+.bg-blue-600,
+.bg-blue-700,
+[class*="bg-blue-"] .text-white,
+[class*="text-white"] {
+  color: #ffffff !important;
+}
+
+/* Ensure placeholder text is visible */
+::placeholder {
+  color: #9ca3af !important;
+  opacity: 1;
+}

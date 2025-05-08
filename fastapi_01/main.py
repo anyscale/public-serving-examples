@@ -2,11 +2,14 @@ import logging
 import time
 import json
 import numpy as np
+import os
 from typing import Dict, Any
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from ray import serve
 
 from example_app.db.database import close_redis
@@ -60,6 +63,14 @@ def app_init_func(app: FastAPI):
 
     # add middleware
     add_middleware(app)
+
+    # Add static files - frontend build
+    frontend_build_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend", "build")
+    if os.path.exists(frontend_build_dir):
+        logger.info(f"Mounting frontend static files from {frontend_build_dir}")
+        app.mount("/", StaticFiles(directory=frontend_build_dir, html=True), name="frontend")
+    else:
+        logger.warning(f"Frontend build directory not found at {frontend_build_dir}")
 
     # Set up OpenTelemetry instrumentation
     setup_opentelemetry(
