@@ -10,7 +10,7 @@ package-mode = false
 python = "^3.9"
 fastapi = "^0.115.12"
 uvicorn = "^0.34.2"
-ray = {extras = ["serve"], path = "../../ray/python", develop = true}
+ray = {extras = ["serve"], path = "../../rayturbo/python", develop = true}
 transformers = "^4.51.3"
 redis = "^6.0.0"
 python-jose = "^3.4.0"

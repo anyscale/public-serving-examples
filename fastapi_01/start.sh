@@ -122,6 +122,10 @@ function cleanup {
 # Set up trap to catch termination signals
 trap cleanup SIGINT SIGTERM
 
+# set the environment variable for the tracing exporter
+export ANYSCALE_TRACING_EXPORTER_IMPORT_PATH="example_app.trace_exporter:default_tracing_exporter"
+export ANYSCALE_TRACING_SAMPLING_RATIO=1.0
+
 # Start the application
 poetry run serve run serve_config.yaml
 

@@ -5,12 +5,12 @@ from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from ray import serve
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from example_app.api.v1.endpoints.classification import ClassificationError
 from example_app.config import PROJECT_NAME
 from example_app.serve import get_serve_app
 from example_app.serve.serve_config import INGRESS_APP_NAME
-from example_app.telemetry import setup_opentelemetry
 
 # Configure logging
 logging.basicConfig(
@@ -66,15 +66,8 @@ def app_init_func():
     else:
         logger.warning(f"Frontend build directory not found at {frontend_build_dir}")
 
-    # Set up OpenTelemetry instrumentation
-    setup_opentelemetry(
-        app=app,
-        service_name="nlp-pipeline",
-        jaeger_host="localhost",
-        jaeger_port=6831,
-        otlp_endpoint="localhost:4317",
-        sampling_ratio=1.0,  # Sample all requests in development
-        console_export=True,  # For debugging
+    FastAPIInstrumentor.instrument_app(
+        app, exclude_spans=["send", "receive"]
     )
 
     return app
