@@ -20,23 +20,22 @@ logging.basicConfig(
 logger = logging.getLogger("main")
 
 
-# Create FastAPI app
-fastapi_app = FastAPI(
-    title=PROJECT_NAME,
-    description="A real-time NLP processing pipeline with FastAPI and Ray Serve",
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
-    default_response_class=JSONResponse,
-)
-
-
-def app_init_func(app: FastAPI):
+def app_init_func():
     """
     This function will be run on serve replica. Hence there is no interference with serialization and cloudpickle.
     """
     from example_app.api.middleware import add_middleware
     from example_app.api.v1.router import router as v1_router
+
+    # Create FastAPI app
+    app = FastAPI(
+        title=PROJECT_NAME,
+        description="A real-time NLP processing pipeline with FastAPI and Ray Serve",
+        version="1.0.0",
+        docs_url="/docs",
+        redoc_url="/redoc",
+        default_response_class=JSONResponse,
+    )
 
     # Define exception handler
     async def classification_error_handler(request, exc):
@@ -78,8 +77,10 @@ def app_init_func(app: FastAPI):
         console_export=True,  # For debugging
     )
 
+    return app
 
-serve_ingress_app = get_serve_app(fastapi_app, app_init_func)
+
+serve_ingress_app = get_serve_app(app_init_func)
 
 if __name__ == "__main__":
     serve.run(serve_ingress_app, name=INGRESS_APP_NAME, route_prefix="/", blocking=True)
