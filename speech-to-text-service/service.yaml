@@ -1,0 +1,19 @@
+name: speech-to-text-service
+
+image_uri: anyscale/image/speech-to-text:3
+
+compute_config:
+  head_node:
+    instance_type: m5.2xlarge
+  worker_nodes:
+    - instance_type: g6.xlarge
+      min_nodes: 1
+      max_nodes: 2
+      market_type: ON_DEMAND
+
+working_dir: .
+
+cloud: anyscale_v2_default_cloud
+
+applications:
+- import_path: websocket_example:app
