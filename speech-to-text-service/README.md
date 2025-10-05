@@ -4,7 +4,7 @@ WebSocket-based real-time speech transcription service deployed on Anyscale.
 
 ## Quick Start
 
-1. **Build Docker image**
+1. **Build Docker image on Anyscale UI**
 
 2. **Update service config**
    - Set `image_uri` in `service.yaml` to your built image
