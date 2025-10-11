@@ -1,0 +1,7 @@
+torch
+numpy
+ray[serve]
+httpx
+tqdm
+anyscale
+locust
