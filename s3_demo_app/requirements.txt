@@ -1,0 +1,4 @@
+ray[serve]
+fastapi
+aioboto3
+locust
